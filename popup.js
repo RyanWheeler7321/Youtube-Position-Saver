@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         '#ff8844'   
     ];
 
+    let sliderTimeout;
+
     async function loadSettings() {
         const result = await chrome.storage.sync.get({
             interval: 5,
@@ -101,16 +103,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     intervalSlider.addEventListener('input', function() {
         const value = this.value;
         sliderValue.textContent = `${value} seconds`;
-        chrome.storage.sync.set({ interval: parseInt(value) });
         
-        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-            if (tabs[0] && tabs[0].url.includes('youtube.com')) {
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    action: 'updateInterval',
-                    interval: parseInt(value)
-                });
-            }
-        });
+        clearTimeout(sliderTimeout);
+        sliderTimeout = setTimeout(() => {
+            chrome.storage.sync.set({ interval: parseInt(value) });
+            
+            chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                if (tabs[0] && tabs[0].url.includes('youtube.com')) {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        action: 'updateInterval',
+                        interval: parseInt(value)
+                    });
+                }
+            });
+        }, 150);
     });
 
     colorCycleButton.addEventListener('click', function() {

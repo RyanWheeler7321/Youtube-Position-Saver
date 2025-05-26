@@ -65,8 +65,8 @@ async function savePosition(forceManual = false) {
     
     const currentTime = getCurrentTime();
     if (currentTime > 0) {
-        const positions = await chrome.storage.local.get('videoPositions') || {};
-        const videoPositions = positions.videoPositions || {};
+        const result = await chrome.storage.local.get('videoPositions');
+        const videoPositions = result.videoPositions || {};
         
         videoPositions[currentVideoId] = {
             time: currentTime,
@@ -86,8 +86,8 @@ async function loadPosition() {
     const isBlacklisted = await checkIfBlacklisted(currentVideoId);
     if (isBlacklisted) return;
     
-    const positions = await chrome.storage.local.get('videoPositions') || {};
-    const videoPositions = positions.videoPositions || {};
+    const result = await chrome.storage.local.get('videoPositions');
+    const videoPositions = result.videoPositions || {};
     
     if (videoPositions[currentVideoId]) {
         const savedTime = videoPositions[currentVideoId].time;
@@ -101,28 +101,34 @@ async function loadPosition() {
 }
 
 async function checkIfBlacklisted(videoId) {
-    const blacklist = await chrome.storage.local.get('blacklistedVideos') || {};
-    const blacklistedVideos = blacklist.blacklistedVideos || {};
+    const result = await chrome.storage.local.get('blacklistedVideos');
+    const blacklistedVideos = result.blacklistedVideos || {};
     return blacklistedVideos[videoId] === true;
 }
 
 async function blacklistCurrentVideo() {
     if (!currentVideoId) return false;
     
-    const blacklist = await chrome.storage.local.get('blacklistedVideos') || {};
-    const blacklistedVideos = blacklist.blacklistedVideos || {};
+    const [blacklistResult, positionsResult] = await Promise.all([
+        chrome.storage.local.get('blacklistedVideos'),
+        chrome.storage.local.get('videoPositions')
+    ]);
+    
+    const blacklistedVideos = blacklistResult.blacklistedVideos || {};
+    const videoPositions = positionsResult.videoPositions || {};
     
     blacklistedVideos[currentVideoId] = true;
-    await chrome.storage.local.set({ blacklistedVideos: blacklistedVideos });
     
-    stopSaving();
-    
-    const positions = await chrome.storage.local.get('videoPositions') || {};
-    const videoPositions = positions.videoPositions || {};
     if (videoPositions[currentVideoId]) {
         delete videoPositions[currentVideoId];
-        await chrome.storage.local.set({ videoPositions: videoPositions });
     }
+    
+    await chrome.storage.local.set({ 
+        blacklistedVideos: blacklistedVideos,
+        videoPositions: videoPositions 
+    });
+    
+    stopSaving();
     
     console.log(`YouTube Position Saver: Video ${currentVideoId} blacklisted`);
     return true;
@@ -159,7 +165,7 @@ function handleVideoChange() {
     }
 }
 
-// MARK: Extension Initialization
+// MARK: Initialization
 async function initialize() {
     const settings = await chrome.storage.sync.get({
         enabled: false,
@@ -179,13 +185,17 @@ async function initialize() {
         }
     }
     
+    let mutationTimeout;
     const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            if (mutation.type === 'childList') {
-                handleVideoChange();
-                break;
+        clearTimeout(mutationTimeout);
+        mutationTimeout = setTimeout(() => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    handleVideoChange();
+                    break;
+                }
             }
-        }
+        }, 50);
     });
     
     observer.observe(document.body, {
