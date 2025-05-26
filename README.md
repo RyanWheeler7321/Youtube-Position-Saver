@@ -1,6 +1,6 @@
 # YouTube Position Saver
 
-<img src="youtubePositionSaver.png" alt="YouTube Position Saver" width="70%">
+<img src="youtubePositionSaver.png" alt="YouTube Position Saver" width="30%">
 
 A Chrome extension that automatically saves and restores your position in YouTube videos.
 
