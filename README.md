@@ -4,11 +4,12 @@
 
 A Chrome extension that automatically saves and restores your position in YouTube videos.
 
-Youtube has this feature through watch history, but I find it often doesn't save the exact timestamp or forgets to save it at all. So I made this.
+YouTube kind of does this through watch history already, but it often misses the exact spot or forgets it completely. This just makes that behavior more reliable.
 
 ## Features
 
-- Lightweight, Only saves positions after 10+ seconds of watch time
+- Lightweight
+- Only saves positions after 10+ seconds of watch time
 - Auto-save video positions at configurable intervals (1-30 seconds)
 - Auto-restore timestamp when revisiting videos
 - Blacklist specific videos to ignore completely
@@ -17,9 +18,24 @@ Youtube has this feature through watch history, but I find it often doesn't save
 - Manual save button
 - All data stored locally
 
-## Installation (it's not an official extension yet.)
+## Installation
+
+This is not on the Chrome Web Store right now.
 
 1. Go to `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked"
-4. Select folder
+4. Select this repo folder
+
+## Usage
+
+- Open any YouTube video
+- Use the popup to turn the extension on or off
+- Set the auto-save interval
+- Use the manual save button whenever you want
+- Blacklist videos you never want tracked
+
+## Notes
+
+- Saved positions and blacklist data stay local in Chrome storage
+- There is no external account setup or API key required
