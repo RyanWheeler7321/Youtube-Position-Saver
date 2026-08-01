@@ -9,14 +9,14 @@ YouTube kind of does this through watch history already, but it often misses the
 ## Features
 
 - Lightweight
-- Only saves positions after 10+ seconds of watch time
+- Restores positions saved past the first 10 seconds
 - Auto-save video positions at configurable intervals (1-30 seconds)
 - Auto-restore timestamp when revisiting videos
 - Blacklist specific videos to ignore completely
 - Dark theme with 9 color customization options (click the play icon in the title)
 - Master power control with toggle
 - Manual save button
-- All data stored locally
+- Uses Chrome's extension storage; no external account or API key is needed
 
 ## Installation
 
@@ -34,8 +34,3 @@ This is not on the Chrome Web Store right now.
 - Set the auto-save interval
 - Use the manual save button whenever you want
 - Blacklist videos you never want tracked
-
-## Notes
-
-- Saved positions and blacklist data stay local in Chrome storage
-- There is no external account setup or API key required

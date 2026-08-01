@@ -1,42 +1,42 @@
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.sync.set({
-        enabled: false,
-        interval: 5
+function setMissingDefaults(storageArea, defaults) {
+    const keys = Object.keys(defaults);
+
+    storageArea.get(keys, (storedValues) => {
+        if (chrome.runtime.lastError) {
+            console.error('Could not read extension defaults:', chrome.runtime.lastError.message);
+            return;
+        }
+
+        const missingValues = {};
+        for (const key of keys) {
+            if (!Object.prototype.hasOwnProperty.call(storedValues, key)) {
+                missingValues[key] = defaults[key];
+            }
+        }
+
+        if (Object.keys(missingValues).length === 0) {
+            return;
+        }
+
+        storageArea.set(missingValues, () => {
+            if (chrome.runtime.lastError) {
+                console.error('Could not initialize extension defaults:', chrome.runtime.lastError.message);
+            }
+        });
     });
-    
-    chrome.storage.local.set({
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+    setMissingDefaults(chrome.storage.sync, {
+        enabled: false,
+        interval: 5,
+        active: true,
+        customColor: '#bb86fc',
+        colorIndex: 4
+    });
+
+    setMissingDefaults(chrome.storage.local, {
         videoPositions: {},
         blacklistedVideos: {}
     });
-    
-    console.log('YouTube Position Saver extension installed');
 });
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && tab.url && tab.url.includes('youtube.com/watch')) {
-        chrome.tabs.sendMessage(tabId, {
-            action: 'pageLoaded'
-        }).catch(() => {
-        });
-    }
-});
-
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'sync') {
-        chrome.tabs.query({ url: '*://www.youtube.com/*' }, (tabs) => {
-            tabs.forEach(tab => {
-                chrome.tabs.sendMessage(tab.id, {
-                    action: 'settingsChanged',
-                    changes: changes
-                }).catch(() => {
-                });
-            });
-        });
-    }
-});
-
-chrome.action.onClicked.addListener((tab) => {
-    if (tab.url.includes('youtube.com')) {
-        chrome.action.openPopup();
-    }
-}); 
