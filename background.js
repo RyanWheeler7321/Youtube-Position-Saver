@@ -1,13 +1,10 @@
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.sync.set({
-        enabled: false,
-        interval: 5
-    });
-    
-    chrome.storage.local.set({
-        videoPositions: {},
-        blacklistedVideos: {}
-    });
+chrome.runtime.onInstalled.addListener(async () => {
+    // Only fill in defaults for missing keys, so updates keep saved positions and settings
+    const settings = await chrome.storage.sync.get({ enabled: false, interval: 5 });
+    await chrome.storage.sync.set(settings);
+
+    const saved = await chrome.storage.local.get({ videoPositions: {}, blacklistedVideos: {} });
+    await chrome.storage.local.set(saved);
     
     console.log('YouTube Position Saver extension installed');
 });

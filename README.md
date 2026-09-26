@@ -1,6 +1,8 @@
-# YouTube Position Saver
-
 <img src="youtubePositionSaver.png" alt="YouTube Position Saver" width="40%">
+
+<img src="icon.svg" alt="YouTube Position Saver icon" width="96">
+
+# YouTube Position Saver
 
 A Chrome extension that automatically saves and restores your position in YouTube videos.
 
@@ -8,7 +10,7 @@ Youtube has this feature through watch history, but I find it often doesn't save
 
 ## Features
 
-- Lightweight, Only saves positions after 10+ seconds of watch time
+- Lightweight, only restores positions past the first 10 seconds
 - Auto-save video positions at configurable intervals (1-30 seconds)
 - Auto-restore timestamp when revisiting videos
 - Blacklist specific videos to ignore completely
