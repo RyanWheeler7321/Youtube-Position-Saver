@@ -92,12 +92,24 @@ async function loadPosition() {
     if (videoPositions[currentVideoId]) {
         const savedTime = videoPositions[currentVideoId].time;
         if (savedTime > 10) {
-            waitForVideoReady(() => {
-                setCurrentTime(savedTime);
-                console.log(`YouTube Position Saver: Restored position to ${Math.floor(savedTime)}s`);
-            });
+            waitForVideoReady(() => restorePosition(savedTime));
         }
     }
+}
+
+function restorePosition(savedTime) {
+    const duration = getVideoElement()?.duration;
+    const isAd = document.getElementById('movie_player')?.classList.contains('ad-showing');
+    
+    // Near the end means it was finished, so start over
+    // Past the end, the duration is probably from the last video
+    if (duration > 0 && !isAd) {
+        const endZone = Math.min(10, duration * 0.05);
+        if (savedTime >= duration - endZone && savedTime <= duration + 1) return;
+    }
+    
+    setCurrentTime(savedTime);
+    console.log(`YouTube Position Saver: Restored position to ${Math.floor(savedTime)}s`);
 }
 
 async function checkIfBlacklisted(videoId) {
